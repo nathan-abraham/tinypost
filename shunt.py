@@ -29,8 +29,8 @@ precedence = {
 
 LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 NUMBERS = "0123456789"
-ONE_ARG_FUNCTIONS = ["abs", "sqrt", "sin", "cos", "tan",]
-MULT_ARG_FUNCTIONS = ["max"]
+ONE_ARG_FUNCTIONS = ["abs", "sqrt", "sin", "cos", "tan", "ln", "acos", "asin", "atan", "atan2", "exp", "log", "sinh", "cosh", "tanh"]
+MULT_ARG_FUNCTIONS = ["max", "pow"]
 FUNCTION_NAMES = ONE_ARG_FUNCTIONS + MULT_ARG_FUNCTIONS
 
 for function in FUNCTION_NAMES:
@@ -39,6 +39,8 @@ for function in FUNCTION_NAMES:
 symbol_table = {
 	"nice_var_name": 10,
 	"x": 5,
+	"pi": math.pi,
+	"e": math.e,
 }
 
 def peek(stack: list):
@@ -94,8 +96,28 @@ def eval_basic(left_operand, right_operand, operator):
 		return math.tan(right)
 	elif operator == "max":
 		return max(left, right)
-
-
+	elif operator == "ln":
+		return math.log(right)
+	elif operator == "asin":
+		return math.asin(right)
+	elif operator == "acos":
+		return math.acos(right)
+	elif operator == "atan":
+		return math.atan(right)
+	elif operator == "atan2":
+		return math.atan2(right)
+	elif operator == "exp":
+		return math.exp(right)
+	elif operator == "log":
+		return math.log10(right)
+	elif operator == "pow":
+		return math.pow(left, right)
+	elif operator == "sinh":
+		return math.sinh(right)
+	elif operator == "cosh":
+		return math.cosh(right)
+	elif operator == "tanh":
+		return math.tanh(right)
 
 def eval_postfix(expression: str):
 	global error, symbol_table 
@@ -109,13 +131,15 @@ def eval_postfix(expression: str):
 
 	while i < len(expression):
 		current_token = expression[i]
-		if expression[i].isdigit():
+		if expression[i].isdigit() or expression[i] == ".":
 			current_token, i = build_number(expression, i)
 			stack.append(current_token)
+			continue
 		elif expression[i].upper() in LETTERS:
 			current_token, i, _type = build_identifier(expression, i)
 			if _type == "id":
 				stack.append(current_token)
+				continue
 		if current_token in FUNCTION_NAMES or current_token in operators:
 			if current_token not in MULT_ARG_FUNCTIONS and \
 				(current_token in FUNCTION_NAMES or expression[i] == ">" or expression[i] == "<"):
@@ -159,7 +183,7 @@ def infix_to_postfix(expression: str):
 	i = 0
 
 	while i < len(expression):
-		if expression[i].isdigit():
+		if expression[i].isdigit() or expression[i] == ".":
 			result, i = build_number(expression, i)
 			output += result + " "
 			continue
@@ -177,7 +201,7 @@ def infix_to_postfix(expression: str):
 					output += stack.pop()
 				stack.pop()
 				if peek(stack) in FUNCTION_NAMES:
-					output += stack.pop()
+					output += stack.pop() + " "
 			elif len(stack) == 0 or precedence[peek(stack)] < precedence[expression[i]] \
 				or precedence[expression[i]] == 0:
 				stack.append(expression[i])
@@ -259,6 +283,9 @@ def build_number(expression: str, pos: int):
 			dot_count += 1
 		result += expression[pos]
 		pos += 1
+
+	if result == ".":
+		raise ValueError()
 	
 	return result, pos
 
@@ -275,14 +302,16 @@ def eval_expr(expression: str):
 	return eval_postfix(infix_to_postfix(expression))
 
 if __name__ == "__main__":
-	expr = "sin(max(2, 3) / 3)"
-	expr2 = "3 * 2 + 4 * 5"
+	expr = "max(pi+3, 4)"
+	expr2 = "3*2+4*5"
 
 	print(clean(expr))
 	print(infix_to_postfix(expr))
-	print(eval_expr(expr))
 
-	print("")
+	start = time.time()
+	print(eval_expr(expr))
+	end = time.time()
+	print(f"Took {end-start} seconds")
 
 	# print(clean(expr2))
 	# print(infix_to_postfix(expr2))
