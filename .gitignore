@@ -1,4 +1,4 @@
 __pycache__/
 __pycache__/**
-legacy.py
-time.py
+tinypost/legacy.py
+tinypost/time.py

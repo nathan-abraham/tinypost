@@ -1,8 +1,8 @@
 import unittest
 import math
 
-from .shunt import eval_expr
-from . import symbol_table
+from . import eval_expr
+from .grammar import symbol_table
 
 class ExprTest(unittest.TestCase):
 
