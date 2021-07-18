@@ -1,5 +1,8 @@
-import time
 import math
+import time
+from inspect import signature
+
+import functions
 
 operators = ["+", "-", "*", "/", "^", ">", "<", ","]
 operators_grouping = operators + ["(", "[", ")", "]"]
@@ -30,9 +33,33 @@ precedence = {
 
 LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 NUMBERS = "0123456789"
-ONE_ARG_FUNCTIONS = ["abs", "sqrt", "sin", "cos", "tan", "ln", "acos", "asin", "atan", "atan2", "exp", "log", "sinh", "cosh", "tanh"]
-MULT_ARG_FUNCTIONS = ["max", "pow"]
-FUNCTION_NAMES = ONE_ARG_FUNCTIONS + MULT_ARG_FUNCTIONS
+ONE_ARG_FUNCTION_NAMES = ["abs", "sqrt", "sin", "cos", "tan", "ln", "acos", "asin", "atan", "exp", "log", "sinh", "cosh", "tanh"]
+MULT_ARG_FUNCTION_NAMES = ["max", "pow", "atan2"]
+FUNCTION_NAMES = ONE_ARG_FUNCTION_NAMES + MULT_ARG_FUNCTION_NAMES
+
+FUNCTION_MAP = {
+	"abs": abs,
+	"sqrt": math.sqrt,
+	"sin": math.sin, 
+	"cos": math.cos, 
+	"tan": math.tan, 
+	"ln": functions.log, 
+	"acos": math.acos, 
+	"asin": math.asin, 
+	"atan": math.atan, 
+	"exp": math.exp, 
+	"log": math.log10, 
+	"sinh": math.sinh, 
+	"cosh": math.cosh, 
+	"tanh": math.tanh,
+
+	"atan2": math.atan2, 
+	"max": functions.max_two,
+	"pow": math.pow,
+}
+
+for function in FUNCTION_MAP:
+	print(f"{function}: {len(signature(FUNCTION_MAP[function]).parameters)}")
 
 for function in FUNCTION_NAMES:
 	precedence[function] = 1
@@ -125,7 +152,7 @@ def eval_postfix(expression: str):
 					return "Variable not found"
 				continue
 		if current_token in FUNCTION_NAMES or current_token in operators:
-			if current_token not in MULT_ARG_FUNCTIONS and \
+			if current_token not in MULT_ARG_FUNCTION_NAMES and \
 				(current_token in FUNCTION_NAMES or expression[i] == ">" or expression[i] == "<"):
 				temp = stack.pop()
 				stack.append("0")
@@ -137,15 +164,8 @@ def eval_postfix(expression: str):
 				right_operand = stack.pop()
 				left_operand = stack.pop()
 
-				if right_operand in symbol_table:
-					right_operand = symbol_table[right_operand]
-				elif right_operand[0].upper() in (LETTERS + "_"):
-					return f"Syntax error at position {i}"
-					
-				if left_operand in symbol_table:
-					left_operand = symbol_table[left_operand]
-				elif left_operand[0].upper() in (LETTERS + "_"):
-					return f"Syntax error at position {i}"
+				if current_token in FUNCTION_NAMES:
+					pass
 
 				if current_token not in FUNCTION_NAMES:
 					current_token = expression[i]

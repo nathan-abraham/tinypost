@@ -39,7 +39,7 @@ class ExprTest(unittest.TestCase):
 		self.assertEquals(shunt.eval_expr(expr), eval(expr_py))
 
 	def test_mult_arg_func(self):
-		expr = "max(3 + 4 / 4, 7)"
+		expr = "max(3 + 4 / 4, 7 + 3)"
 		self.assertEquals(shunt.eval_expr(expr), eval(expr))
 
 	def test_var(self):
