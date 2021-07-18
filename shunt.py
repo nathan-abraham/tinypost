@@ -1,24 +1,25 @@
 import time
+import math
 
-operators = ["+", "-", "*", "/", "^", "p", "m"]
+operators = ["+", "-", "*", "/", "^", ">", "<"]
 operators_grouping = operators + ["(", "[", ")", "]"]
 error = None
 
 precedence = {
-	")": 5,
-	"]": 5,
+	")": 6,
+	"]": 6,
 
 	"^": 4,
 
-	"m": 3,
-	"p": 3,
+	"<": 4,
+	">": 4,
 
-	"*": 2,
-	"/": 2,
-	"%": 2,
+	"*": 3,
+	"/": 3,
+	"%": 3,
 
-	"+": 1,
-	"-": 1,
+	"+": 2,
+	"-": 2, 
 
 	"(": 0,
 	"[": 0,
@@ -28,7 +29,17 @@ precedence = {
 
 LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 NUMBERS = "0123456789"
+ONE_ARG_FUNCTIONS = ["abs", "sqrt", "sin", "cos", "tan",]
+MULT_ARG_FUNCTIONS = ["max"]
+FUNCTION_NAMES = ONE_ARG_FUNCTIONS + MULT_ARG_FUNCTIONS
 
+for function in FUNCTION_NAMES:
+	precedence[function] = 1
+
+symbol_table = {
+	"nice_var_name": 10,
+	"x": 5,
+}
 
 def peek(stack: list):
 	if stack:
@@ -61,9 +72,9 @@ def eval_basic(left_operand, right_operand, operator):
 	left = float(left_operand)
 	right = float(right_operand)
 
-	if operator == "+" or operator == "p":
+	if operator == "+" or operator == ">":
 		return left + right
-	elif operator == "-" or operator == "m":
+	elif operator == "-" or operator == "<":
 		return left - right
 	elif operator == "*":
 		return left * right
@@ -71,21 +82,43 @@ def eval_basic(left_operand, right_operand, operator):
 		return left / right
 	elif operator == "^":
 		return left ** right
+	elif operator == "abs":
+		return abs(right)
+	elif operator == "sqrt":
+		return math.sqrt(right)
+	elif operator == "sin":
+		return math.sin(right)
+	elif operator == "cos":
+		return math.cos(right)
+	elif operator == "tan":
+		return math.tan(right)
+	elif operator == "max":
+		return max(left, right)
+
 
 
 def eval_postfix(expression: str):
-	global error 
+	global error, symbol_table 
 
 	stack = []
 	i = 0
 	error = None
 
+	func_flag = False
+	current_token = None
+
 	while i < len(expression):
+		current_token = expression[i]
 		if expression[i].isdigit():
-			result, i = build_number(expression, i)
-			stack.append(result)
-		elif expression[i] in operators:
-			if expression[i] == "m" or expression[i] == "p":
+			current_token, i = build_number(expression, i)
+			stack.append(current_token)
+		elif expression[i].upper() in LETTERS:
+			current_token, i, _type = build_identifier(expression, i)
+			if _type == "id":
+				stack.append(current_token)
+		if current_token in FUNCTION_NAMES or current_token in operators:
+			if current_token not in MULT_ARG_FUNCTIONS and \
+				(current_token in FUNCTION_NAMES or expression[i] == ">" or expression[i] == "<"):
 				temp = stack.pop()
 				stack.append("0")
 				stack.append(temp)
@@ -96,7 +129,20 @@ def eval_postfix(expression: str):
 				right_operand = stack.pop()
 				left_operand = stack.pop()
 
-				temp_result = str(eval_basic(left_operand, right_operand, expression[i]))
+				if right_operand in symbol_table:
+					right_operand = symbol_table[right_operand]
+				elif right_operand[0].upper() in (LETTERS + "_"):
+					return f"Syntax error at position {i}"
+					
+				if left_operand in symbol_table:
+					left_operand = symbol_table[left_operand]
+				elif left_operand[0].upper() in (LETTERS + "_"):
+					return f"Syntax error at position {i}"
+
+				if current_token not in FUNCTION_NAMES:
+					current_token = expression[i]
+
+				temp_result = str(eval_basic(left_operand, right_operand, current_token))
 				stack.append(temp_result)
 
 		i += 1
@@ -118,19 +164,26 @@ def infix_to_postfix(expression: str):
 			output += result + " "
 			continue
 		elif expression[i].upper() in LETTERS:
-			result, i = build_identifier(expression, i)
-			output += result + " "
+			result, i, _type = build_identifier(expression, i)
+			if _type == "id":
+				output += result + " "
+			else:
+				stack.append(result)
 			continue
 		elif expression[i] in operators_grouping:
-			if precedence[expression[i]] == 5:
+			right_associative = expression[i] == "^" or expression[i] == ">" or expression[i] == "<"
+			if precedence[expression[i]] == 6:
 				while peek(stack) != inverse(expression[i]):
 					output += stack.pop()
 				stack.pop()
+				if peek(stack) in FUNCTION_NAMES:
+					output += stack.pop()
 			elif len(stack) == 0 or precedence[peek(stack)] < precedence[expression[i]] \
 				or precedence[expression[i]] == 0:
 				stack.append(expression[i])
 			else:
-				while len(stack) > 0 and precedence[peek(stack)] >= precedence[expression[i]]:
+				while len(stack) > 0 and precedence[peek(stack)] >= precedence[expression[i]] \
+					and not right_associative:
 					output += stack.pop()
 				stack.append(expression[i])
 		i += 1
@@ -180,14 +233,15 @@ def clean(expression: str):
 		if expression[i] in operators:
 			if previous_token is None:
 				if expression[i] == "+":
-					expression[i] = "p"
+					expression[i] = ">"
 				elif expression[i] == "-":
-					expression[i] = "m"
-			elif previous_token and not previous_token.isdigit() and not previous_token in [")", "]"]:
+					expression[i] = "<"
+			elif previous_token and not (previous_token.isdigit() or previous_token.upper() in (LETTERS + "_")) \
+				 and not previous_token in [")", "]"]:
 				if expression[i] == "+":
-					expression[i] = "p"
+					expression[i] = ">"
 				elif expression[i] == "-":
-					expression[i] = "m"
+					expression[i] = "<"
 
 		previous_token = current_token
 		i += 1
@@ -214,33 +268,26 @@ def build_identifier(expression: str, pos: int):
 		result += expression[pos]
 		pos += 1
 
-	return result, pos
+	_type = "func" if result in FUNCTION_NAMES else "id"
+	return result, pos, _type 
 
 def eval_expr(expression: str):
 	return eval_postfix(infix_to_postfix(expression))
 
 if __name__ == "__main__":
-	expr = "3 + x"
-	expr_py = "2+2/4**2"
+	expr = "sin(max(2, 3) / 3)"
+	expr2 = "3 * 2 + 4 * 5"
 
 	print(clean(expr))
 	print(infix_to_postfix(expr))
-	# print(eval_postfix(infix_to_postfix(expr)))
+	print(eval_expr(expr))
 
+	print("")
 
-# start = time.time()
-# expr = infix_to_postfix(expr)
-# for i in range(100000):
-# 	eval_postfix(expr)
-# end = time.time()
+	# print(clean(expr2))
+	# print(infix_to_postfix(expr2))
+	# print(eval_expr(expr2))
 
-# print("My eval took took " + str(end-start))
-
-# start = time.time()
-# for i in range(100000):
-# 	eval(expr_py)
-# end = time.time()
-# print("Python eval took " + str(end-start))
 
 
 
