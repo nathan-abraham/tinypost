@@ -1,13 +1,14 @@
 import time
 import math
 
-operators = ["+", "-", "*", "/", "^", ">", "<"]
+operators = ["+", "-", "*", "/", "^", ">", "<", ","]
 operators_grouping = operators + ["(", "[", ")", "]"]
 error = None
 
 precedence = {
 	")": 6,
 	"]": 6,
+	",": 6,
 
 	"^": 4,
 
@@ -48,27 +49,8 @@ def peek(stack: list):
 		return stack[len(stack)-1]
 
 def inverse(char: str):
-	return "(" if char == ")" else "["
+	return "(" if char == ")" or char == "," else "["
 
-def is_balanced(expression: str):
-	open_group_symbols = ["[", "("]
-	close_group_symbols = ["]", ")"]
-
-	stack = []
-
-	for i in range(len(expression)):
-		if expression[i] not in open_group_symbols and expression[i] not in close_group_symbols:
-			continue
-
-		if expression[i] in open_group_symbols:
-			stack.append(expression[i])
-		elif expression[i] in close_group_symbols:
-			if (peek(stack) == inverse(expression[i])):
-				stack.pop()
-			else:
-				return False
-
-	return len(stack) == 0
 
 def eval_basic(left_operand, right_operand, operator):
 	left = float(left_operand)
@@ -126,7 +108,6 @@ def eval_postfix(expression: str):
 	i = 0
 	error = None
 
-	func_flag = False
 	current_token = None
 
 	while i < len(expression):
@@ -138,7 +119,10 @@ def eval_postfix(expression: str):
 		elif expression[i].upper() in LETTERS:
 			current_token, i, _type = build_identifier(expression, i)
 			if _type == "id":
-				stack.append(current_token)
+				if current_token in symbol_table:
+					stack.append(str(symbol_table[current_token]))
+				else:
+					return "Variable not found"
 				continue
 		if current_token in FUNCTION_NAMES or current_token in operators:
 			if current_token not in MULT_ARG_FUNCTIONS and \
@@ -196,10 +180,12 @@ def infix_to_postfix(expression: str):
 			continue
 		elif expression[i] in operators_grouping:
 			right_associative = expression[i] == "^" or expression[i] == ">" or expression[i] == "<"
-			if precedence[expression[i]] == 6:
+			if precedence[expression[i]] == 6 or expression[i] == ",":
 				while peek(stack) != inverse(expression[i]):
 					output += stack.pop()
-				stack.pop()
+
+				if expression[i] != ",":
+					stack.pop()
 				if peek(stack) in FUNCTION_NAMES:
 					output += stack.pop() + " "
 			elif len(stack) == 0 or precedence[peek(stack)] < precedence[expression[i]] \
@@ -217,29 +203,6 @@ def infix_to_postfix(expression: str):
 	
 	return output
 
-def insert(expression: str, chars: str, pos: int):
-	return expression[:pos] + chars + expression[pos:]
-
-def clean_old(expression: str):
-	i = 0;
-	expression = list(expression.replace(" ", ""))
-
-	while i < len(expression):
-		if expression[i] in operators:
-			if i == 0:
-				if expression[i] == "+":
-					expression[i] = "p"
-				elif expression[i] == "-":
-					expression[i] = "m"
-			elif not expression[i-1].isdigit() and not expression[i-1] in [")", "]"]:
-				if expression[i] == "+":
-					expression[i] = "p"
-				elif expression[i] == "-":
-					expression[i] = "m"
-
-		i += 1
-	
-	return "".join(expression)
 
 def clean(expression: str):
 	i = 0;
