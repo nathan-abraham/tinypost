@@ -2,7 +2,7 @@ import unittest
 import math
 
 from . import eval_expr
-from .grammar import symbol_table
+from ._grammar import _symbol_table
 
 class ExprTest(unittest.TestCase):
 
@@ -46,13 +46,13 @@ class ExprTest(unittest.TestCase):
 
 	def test_var(self):
 		x = 2.32
-		symbol_table["x"] = 2.32
+		_symbol_table["x"] = 2.32
 		expr = "3 + x / 4"
 		self.assertEquals(eval_expr(expr), eval(expr))
 
 	def test_standalone_var(self):
 		x = 2.32
-		symbol_table["x"] = 2.32
+		_symbol_table["x"] = 2.32
 		expr = "x"
 		self.assertEquals(eval_expr(expr), eval(expr))
 

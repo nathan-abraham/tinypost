@@ -1,12 +1,12 @@
 import math
-from .functions import _log, _max_two
+from ._functions import _log, _max_two
 
-LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-NUMBERS = "0123456789"
-operators = ["+", "-", "*", "/", "^", ">", "<", ","]
-operators_grouping = operators + ["(", "[", ")", "]"]
+_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+_NUMBERS = "0123456789"
+_operators = ["+", "-", "*", "/", "^", ">", "<", ","]
+_operators_grouping = _operators + ["(", "[", ")", "]"]
 
-precedence = {
+_precedence = {
 	")": 6,
 	"]": 6,
 	",": 6,
@@ -29,7 +29,7 @@ precedence = {
 	None: float("inf"),
 }
 
-FUNCTION_MAP = {
+_BUILTIN_FUNCTION_MAP = {
 	"abs": abs,
 	"sqrt": math.sqrt,
 	"sin": math.sin, 
@@ -50,12 +50,19 @@ FUNCTION_MAP = {
 	"pow": math.pow,
 }
 
-for function in FUNCTION_MAP:
-	precedence[function] = 1
+_FUNCTION_MAP = {
+	**_BUILTIN_FUNCTION_MAP,
+}
 
-symbol_table = {
+for function in _FUNCTION_MAP:
+	_precedence[function] = 1
+
+_symbol_table = {
 	"nice_var_name": 10,
 	"x": 5,
 	"pi": math.pi,
 	"e": math.e,
 }
+
+if __name__ == "__main__":
+	print(_FUNCTION_MAP)

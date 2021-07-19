@@ -2,13 +2,13 @@ import math
 import time
 from inspect import signature
 
-from .postfix_parser import _build_number, _build_identifier, _infix_to_postfix, _clean
-from .grammar import operators, LETTERS, FUNCTION_MAP, symbol_table
+from ._postfix_parser import _build_number, _build_identifier, _infix_to_postfix, _clean
+from ._grammar import _operators, _LETTERS, _FUNCTION_MAP, _symbol_table
 
 error = None
 
 def _eval_func(func_name, params):
-	return FUNCTION_MAP[func_name](*params)
+	return _FUNCTION_MAP[func_name](*params)
 
 def _eval_basic(left_operand, right_operand, operator):
 	left = float(left_operand)
@@ -26,7 +26,7 @@ def _eval_basic(left_operand, right_operand, operator):
 		return left ** right
 
 def _eval_postfix(expression: str):
-	global error, symbol_table 
+	global error, _symbol_table 
 
 	stack = []
 	i = 0
@@ -40,25 +40,25 @@ def _eval_postfix(expression: str):
 			current_token, i = _build_number(expression, i)
 			stack.append(current_token)
 			continue
-		elif expression[i].upper() in LETTERS:
+		elif expression[i].upper() in _LETTERS:
 			current_token, i, _type = _build_identifier(expression, i)
 			if _type == "id":
-				if current_token in symbol_table:
-					stack.append(str(symbol_table[current_token]))
+				if current_token in _symbol_table:
+					stack.append(str(_symbol_table[current_token]))
 				else:
 					return "Variable not found"
 				continue
-		if current_token in FUNCTION_MAP or current_token in operators:
+		if current_token in _FUNCTION_MAP or current_token in _operators:
 			if expression[i] == ">" or expression[i] == "<":
 				temp = stack.pop()
 				stack.append("0")
 				stack.append(temp)
-			if len(stack) < 2 and current_token in operators:
+			if len(stack) < 2 and current_token in _operators:
 				error = i
 				return f"Syntax error at position {i}"
 			else:
-				if current_token in FUNCTION_MAP:
-					num_params = len(signature(FUNCTION_MAP[current_token]).parameters)
+				if current_token in _FUNCTION_MAP:
+					num_params = len(signature(_FUNCTION_MAP[current_token]).parameters)
 					params = []
 					for _ in range(num_params):
 						params.append(float(stack.pop()))
