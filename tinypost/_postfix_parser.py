@@ -39,7 +39,7 @@ def _clean(expression: str):
 	return "".join(expression)
 
 def _build_number(expression: str, pos: int):
-	result = ""
+	result = []
 	dot_count = 0
 
 	while pos < len(expression) and (expression[pos].isdigit() or \
@@ -47,38 +47,40 @@ def _build_number(expression: str, pos: int):
 		
 		if expression[pos] == ".":
 			dot_count += 1
-		result += expression[pos]
+		result.append(expression[pos])
 		pos += 1
 
-	if result == ".":
+	final = "".join(result)
+	if final == ".":
 		raise ValueError()
 	
-	return result, pos
+	return final, pos
 
 def _build_identifier(expression: str, pos: int):
-	result = ""
+	result = []
 	while pos < len(expression) and expression[pos].upper() in (_LETTERS + _NUMBERS + "_"):
-		result += expression[pos]
+		result.append(expression[pos])
 		pos += 1
 
-	_type = "func" if result in _FUNCTION_MAP else "id"
-	return result, pos, _type 
+	final = "".join(result)
+	_type = "func" if final in _FUNCTION_MAP else "id"
+	return final, pos, _type 
 
 def _infix_to_postfix(expression: str):
 	expression = _clean(expression)
-	output = ""	
+	output = []	
 	stack = []
 	i = 0
 
 	while i < len(expression):
 		if expression[i].isdigit() or expression[i] == ".":
 			result, i = _build_number(expression, i)
-			output += result + " "
+			output.append(result + " ")
 			continue
 		elif expression[i].upper() in _LETTERS:
 			result, i, _type = _build_identifier(expression, i)
 			if _type == "id":
-				output += result + " "
+				output.append(result + " ")
 			else:
 				stack.append(result)
 			continue
@@ -86,23 +88,23 @@ def _infix_to_postfix(expression: str):
 			right_associative = expression[i] == "^" or expression[i] == ">" or expression[i] == "<"
 			if _precedence[expression[i]] == 6 or expression[i] == ",":
 				while _peek(stack) != _inverse(expression[i]):
-					output += stack.pop()
+					output.append(stack.pop())
 
 				if expression[i] != ",":
 					stack.pop()
 				if _peek(stack) in _FUNCTION_MAP:
-					output += stack.pop() + " "
+					output.append(stack.pop() + " ")
 			elif len(stack) == 0 or _precedence[_peek(stack)] < _precedence[expression[i]] \
 				or _precedence[expression[i]] == 0:
 				stack.append(expression[i])
 			else:
 				while len(stack) > 0 and _precedence[_peek(stack)] >= _precedence[expression[i]] \
 					and not right_associative:
-					output += stack.pop()
+					output.append(stack.pop())
 				stack.append(expression[i])
 		i += 1
 	
 	while len(stack) > 0:
-		output += stack.pop()
+		output.append(stack.pop())
 	
-	return output
+	return "".join(output)
