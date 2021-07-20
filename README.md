@@ -1,3 +1,6 @@
+<img alt="Tinypost logo" src="static/logo.png" align="right"/>
+
+
 # Tinypost
 
 Tinypost is a tiny infix-to-postfix expression parser and interpreter for
