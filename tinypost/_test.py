@@ -56,8 +56,13 @@ class ExprTest(unittest.TestCase):
 		expr = "x"
 		self.assertEqual(eval_expr(expr), eval(expr))
 
-	def neg_exp(self):
+	def test_neg_exp(self):
 		x = 5.32
-		expr = "-x^4.90"
+		_symbol_table["x"] = 5.32
+		expr = "-x^4.90" 
 		expr_py = "-x ** 4.90"
 		self.assertEqual(eval_expr(expr), eval(expr_py))
+
+	def test_neg(self):
+		expr = "-3.294 + -9.2" 
+		self.assertEqual(eval_expr(expr), eval(expr))

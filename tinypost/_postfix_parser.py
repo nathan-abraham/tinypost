@@ -15,7 +15,7 @@ def _clean(expression: str):
 	previous_token = None
 
 	while i < len(expression):
-		if expression[i] == " " or expression[i] == "\t":
+		if expression[i] == " " or expression[i] == "\t" or expression[i] == "\n":
 			i += 1
 			continue
 		current_token = expression[i]
