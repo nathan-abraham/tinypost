@@ -1,19 +1,18 @@
 <img alt="Tinypost logo" src="static/logo.png" align="right"/>
 
-
 # Tinypost
 
 Tinypost is a tiny **infix-to-postfix** expression parser and interpreter for
 math expressions. Quickly evaluate math expressions quickly with just a few lines of
 code. Tinypost supports many of the functions in the
-python ```math``` module.
+python `math` module.
 
 ## Features
 
 - No external dependencies
 - Fast performance
 - Abides by standard operator precedence
-- Implements many mathematical functions in the ```math``` module
+- Implements many mathematical functions in the `math` module
 - Easily bind custom variables and functions
 - MIT License
 - Local stacks
@@ -55,6 +54,7 @@ long_var_name = 5.5
 tp.add_var("long_var_name", long_var_name)
 print(tp.eval_expr("long_var_name * 3 / 6.23"))) # Prints 2.648...
 ```
+
 Variable names must start with letter and can only contain letters, underscores,
 and numbers. You can also use multiple variables in a single expression.
 
@@ -77,7 +77,7 @@ for i in range(3):
 	print(tp.eval_compiled(expr), end=" ") # Prints 4 5 8
 ```
 
-This will run faster than if you were to call ```tp.eval_expr()``` for each
+This will run faster than if you were to call `tp.eval_expr()` for each
 iteration of the loop.
 
 ## Mathematical Functions
@@ -103,28 +103,29 @@ def my_weird_sum(a, b):
 	weird_num = 2.3551
 	return (a / weird_num) ** 2 + b
 
-# Functions cannot have optional parameters, they 
+# Functions cannot have optional parameters, they
 # must have a constant number of arguments.
 # Functions must return a singular int or float.
 
 tp.add_func("my_weird_sum", my_weird_sum)
-expr = "my_weird_sum(3, 9.2) + 3" 
+expr = "my_weird_sum(3, 9.2) + 3"
 print(tp.eval_expr(expr)) # Prints 13.822...
 ```
 
-Also, the constants ```pi``` and ```e``` are available for your use.
+Also, the constants `pi` and `e` are available for your use.
 
 ## How This Works
+
 Tinypost uses Dijkstra's Shunting Yard Algorithm to convert infix expressions
 to postfix expressions (Tinypost uses right postfix notation). Afterwards, Tinypost
 uses a postfix expressions evaluation algorithm to evaluate the compiled expression.
 Both algorithms make extensive use of stacks, meaning that popping and pushing to the
-stack is an ```O(1)``` process. The entire algorithm runs in about ```O(n)``` time
+stack is an `O(1)` process. The entire algorithm runs in about `O(n)` time
 because it has to loop through every token in the expression.
 
 ## Notes
-Tinypost raises python ```SyntaxError```s if it finds an error in an expresion
-you passed in. Variables, functions, and modules prefixed by an ```_``` are 
+
+Tinypost raises python `SyntaxError`s if it finds an error in an expresion
+you passed in. Variables, functions, and modules prefixed by an `_` are
 meant for **internal use** only. Using these incorrectly could result in
 unpredictable behavior.
-
