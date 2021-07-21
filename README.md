@@ -100,8 +100,8 @@ like to bind your own functions, you can do the following.
 import tinypost as tp
 
 def my_weird_sum(a, b):
-	weird_num = 2.3551
-	return (a / weird_num) ** 2 + b
+    weird_num = 2.3551
+    return (a / weird_num) ** 2 + b
 
 # Functions cannot have optional parameters, they
 # must have a constant number of arguments.
