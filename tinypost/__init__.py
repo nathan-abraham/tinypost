@@ -32,6 +32,7 @@ def update_var(var_name: str, var: float):
 
 def add_func(func_name: str, func):
 	grammar._FUNCTION_MAP[func_name] = func
+	grammar._precedence[func_name] = 1
 
 def update_func(func_name: str, func):
 	grammar._FUNCTION_MAP[func_name] = func

@@ -24,6 +24,8 @@ def _eval_basic(left_operand, right_operand, operator):
 		return left / right
 	elif operator == "^":
 		return left ** right
+	elif operator == "%":
+		return left % right
 
 def _eval_postfix(expression: str):
 	global error, _symbol_table 
@@ -50,22 +52,35 @@ def _eval_postfix(expression: str):
 				continue
 		if current_token in _FUNCTION_MAP or current_token in _operators:
 			if expression[i] == ">" or expression[i] == "<":
+				if len(stack) == 0:
+					raise SyntaxError("Missing operand after unary operator")
+
 				temp = stack.pop()
 				stack.append("0")
 				stack.append(temp)
 			if len(stack) < 2 and current_token in _operators:
 				error = i
-				return f"Syntax error at position {i}"
+				raise SyntaxError("Not enough operands")
+				# return f"Syntax error at position {i}"
 			else:
 				if current_token in _FUNCTION_MAP:
 					num_params = len(signature(_FUNCTION_MAP[current_token]).parameters)
 					params = []
 					for _ in range(num_params):
-						params.append(float(stack.pop()))
+						if len(stack) == 0:
+							raise SyntaxError("Missing function arguments")
+
+						params.insert(0, float(stack.pop()))
 					temp_result = str(_eval_func(current_token, params))
 				else:
+					if len(stack) == 0:
+						raise SyntaxError("Missing right operand")
 					right_operand = stack.pop()
+
+					if len(stack) == 0:
+						raise SyntaxError("Missing left operand")
 					left_operand = stack.pop()
+
 					current_token = expression[i]
 					temp_result = str(_eval_basic(left_operand, right_operand, current_token))
 
@@ -79,7 +94,7 @@ def _eval_postfix(expression: str):
 		return float(stack[0])
 
 if __name__ == "__main__":
-	expr = "3 / 2"
+	expr = "+-3"
 	expr2 = "3*2+4*5"
 
 	print(_clean(expr))

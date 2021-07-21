@@ -88,9 +88,13 @@ def _infix_to_postfix(expression: str):
 			right_associative = expression[i] == "^" or expression[i] == ">" or expression[i] == "<"
 			if _precedence[expression[i]] == 6 or expression[i] == ",":
 				while _peek(stack) != _inverse(expression[i]):
+					if len(stack) == 0:
+						raise SyntaxError("Missing '('")
 					output.append(stack.pop())
 
 				if expression[i] != ",":
+					if len(stack) == 0:
+						raise SyntaxError("Missing '('")
 					stack.pop()
 				if _peek(stack) in _FUNCTION_MAP:
 					output.append(stack.pop() + " ")

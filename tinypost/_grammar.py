@@ -3,7 +3,7 @@ from ._functions import _log, _max_two
 
 _LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 _NUMBERS = "0123456789"
-_operators = ["+", "-", "*", "/", "^", ">", "<", ","]
+_operators = ["+", "-", "*", "/", "^", ">", "<", ",", "%"]
 _operators_grouping = _operators + ["(", "[", ")", "]"]
 
 _precedence = {
