@@ -45,9 +45,9 @@ class ExprTest(unittest.TestCase):
 		self.assertEqual(eval_expr(expr), eval(expr))
 
 	def test_var(self):
-		x = 2.32
-		_symbol_table["x"] = 2.32
-		expr = "3 + x / 4"
+		nice_var_name = 2.32
+		_symbol_table["nice_var_name"] = nice_var_name
+		expr = "3 + nice_var_name / 4"
 		self.assertEqual(eval_expr(expr), eval(expr))
 
 	def test_standalone_var(self):
@@ -65,4 +65,8 @@ class ExprTest(unittest.TestCase):
 
 	def test_neg(self):
 		expr = "-3.294 + -9.2" 
+		self.assertEqual(eval_expr(expr), eval(expr))
+
+	def test_neg_paren(self):
+		expr = "-(3 - 9) / 10"
 		self.assertEqual(eval_expr(expr), eval(expr))
