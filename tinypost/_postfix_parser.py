@@ -73,9 +73,9 @@ def _build_identifier(expression: str, pos: int):
 
 
 def _infix_to_postfix(expression: str):
-    expression = _clean(expression)
     if not _is_balanced(expression):
-        raise SyntaxError("Missing '(' or ')'")
+        raise SyntaxError("Missing grouping symbol")
+    expression = _clean(expression)
 
     output = []
     stack = []
@@ -141,4 +141,8 @@ def _is_balanced(expression: str):
             else:
                 return False
 
-    return True
+    return len(stack) == 0
+
+
+if __name__ == "__main__":
+    print(_is_balanced("(3 + 4"))

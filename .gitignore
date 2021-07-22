@@ -3,3 +3,6 @@ __pycache__/**
 tinypost/legacy.py
 tinypost/time.py
 todo.txt
+build/
+dist/
+tinypost.egg-info
