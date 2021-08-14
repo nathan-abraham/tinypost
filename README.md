@@ -72,9 +72,9 @@ tp.update_var("x", x)
 expr = tp.compile_expr("x^2 + 4")
 
 for i in range(3):
-	x = i
-	tp.update_var("x", i)
-	print(tp.eval_compiled(expr), end=" ") # Prints 4 5 8
+    x = i
+    tp.update_var("x", i)
+    print(tp.eval_compiled(expr), end=" ") # Prints 4 5 8
 ```
 
 This will run faster than if you were to call `tp.eval_expr()` for each
