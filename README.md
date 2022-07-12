@@ -1,3 +1,4 @@
+[![Downloads](https://static.pepy.tech/personalized-badge/tinypost?period=total&units=international_system&left_color=black&right_color=orange&left_text=Downloads)](https://pepy.tech/project/tinypost)
 <img alt="Tinypost logo" src="static/logo.png" align="right"/>
 
 # Tinypost
