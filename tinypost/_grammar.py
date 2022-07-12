@@ -58,8 +58,6 @@ for function in _FUNCTION_MAP:
     _precedence[function] = 1
 
 _symbol_table = {
-    "nice_var_name": 10,
-    "x": 5,
     "pi": math.pi,
     "e": math.e,
 }
